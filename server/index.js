@@ -19,9 +19,14 @@ const app = express();
 const port = Number(process.env.PORT ?? 4000);
 const clientUrl = process.env.CLIENT_URL ?? "http://127.0.0.1:5173";
 
-// Middleware
-app.use(cors({ origin: [clientUrl, "http://localhost:5173", "http://127.0.0.1:5173"] }));
-app.use(express.json());
+// Middleware - JANGAN DIUBAH
+app.use(
+  cors({
+    origin: [clientUrl, "http://localhost:5173", "http://127.0.0.1:5173"],
+    credentials: true,
+  }),
+);
+app.use(express.json({ limit: "10mb" })); // Tambah limit untuk file besar
 
 // Routes
 app.use("/api/auth", authRouter);
@@ -39,19 +44,33 @@ app.get("/api/health", (_req, res) => {
   res.json({
     status: "ok",
     service: "commerce-insight-hub-api",
-    timestamp: new Date()
+    timestamp: new Date(),
   });
+});
+
+// 👇 TAMBAHKAN INI - Error handler untuk body parsing
+app.use((err, req, res, next) => {
+  // Handle body parsing error
+  if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+    console.error("❌ Body parsing error:", err.message);
+    return res.status(400).json({
+      message: "Invalid JSON payload",
+      error: err.message,
+    });
+  }
+  next(err);
 });
 
 // Centralized error handling
 app.use((err, _req, res, _next) => {
-  console.error("Unhandled server error:", err);
+  console.error("❌ Unhandled server error:", err);
   res.status(err.status || 500).json({
-    message: err.message || "An unexpected error occurred on the server"
+    message: err.message || "An unexpected error occurred on the server",
   });
 });
 
 // Start server
 app.listen(port, "0.0.0.0", () => {
-  console.log(`API server listening on http://0.0.0.0:${port}`);
+  console.log(`🚀 API server listening on http://0.0.0.0:${port}`);
+  console.log(`📦 Environment: ${process.env.NODE_ENV || "development"}`);
 });

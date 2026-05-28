@@ -1,0 +1,6 @@
+- [ ] Verify persistence: DB used by Prisma matches expected PostgreSQL
+- [ ] Ensure import writes to DB immediately (createMany correctness)
+- [ ] Fix dashboard date filters for trends/top-products/platform-comparison (end-exclusive)
+- [ ] Fix GMV / total orders / items sold aggregation to only count completed orders consistently
+- [ ] Fix completed-order filtering inside trends, top-products, platform-comparison
+- [ ] Run import + verify KPI cards and charts return non-zero values

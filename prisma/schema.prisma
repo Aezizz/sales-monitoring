@@ -1,0 +1,114 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String   @db.Text
+  role      String
+  createdAt DateTime @default(now())
+
+  requestedCorrections Correction[] @relation("RequestedBy")
+  approvedCorrections  Correction[] @relation("ApprovedBy")
+  auditLogs            AuditLog[]
+}
+
+model Product {
+  id        String   @id @default(uuid())
+  sku       String   @unique
+  parentSku String?
+  name      String
+  category  String?
+  image     String?
+  costPrice Float
+  sellPrice Float
+  createdAt DateTime @default(now())
+
+  variants ProductVariant[]
+  orders   Order[]
+}
+
+model ProductVariant {
+  id          String   @id @default(uuid())
+  productId   String
+  variantName String
+  stock       Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Store {
+  id        String   @id @default(uuid())
+  platform  String
+  storeName String
+  createdAt DateTime @default(now())
+
+  orders Order[]
+}
+
+model Order {
+  id          String   @id @default(uuid())
+  orderNumber String   @unique
+  storeId     String
+  productId   String
+  quantity    Int
+  totalAmount Float
+  status      String
+  orderDate   DateTime
+
+  store       Store        @relation(fields: [storeId], references: [id])
+  product     Product      @relation(fields: [productId], references: [id])
+  corrections Correction[]
+}
+
+model Promotion {
+  id        String   @id @default(uuid())
+  name      String
+  platform  String
+  startDate DateTime
+  endDate   DateTime
+  budget    Float
+  revenue   Float
+}
+
+model Correction {
+  id          String   @id @default(uuid())
+  orderId     String
+  requestedBy String
+  approvedBy  String?
+  reason      String   @db.Text
+  status      String
+  createdAt   DateTime @default(now())
+
+  order     Order  @relation(fields: [orderId], references: [id])
+  requester User   @relation("RequestedBy", fields: [requestedBy], references: [id])
+  approver  User?  @relation("ApprovedBy", fields: [approvedBy], references: [id])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String
+  entity    String   @db.Text
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model ImportHistory {
+  id         String   @id @default(uuid())
+  filename   String
+  status     String
+  uploadedBy String
+  timestamp  DateTime @default(now())
+  totalRows  Int
+  failedRows Int
+}

@@ -21,11 +21,13 @@ const port = Number(process.env.PORT ?? 4000);
 // ✅ CORS - Daftar origin yang diizinkan
 const allowedOrigins = [
   process.env.CLIENT_URL,
-  "https://sales-monitoring-ytr.vercel.app", // URL Vercel kamu
+  "https://sales-monitoring-yytr.vercel.app", // ← DOMAIN VERCELL MU
   "https://sales-monitoring.ae.studio",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
-].filter(Boolean); // Hapus yang undefined
+].filter(Boolean);
+
+console.log("✅ CORS allowed origins:", allowedOrigins);
 
 // Middleware CORS
 app.use(

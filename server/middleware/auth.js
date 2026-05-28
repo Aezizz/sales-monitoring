@@ -12,12 +12,19 @@ export const authenticateToken = async (req, res, next) => {
   }
 
   try {
-    const secret = process.env.JWT_SECRET || "fallback_secret_key_12345";
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error("❌ JWT_SECRET is not set on server (verify)");
+      return res
+        .status(500)
+        .json({ message: "Server misconfigured (JWT_SECRET missing)" });
+    }
+
     const decoded = jwt.verify(token, secret);
 
     // Verify user exists in database
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId }
+      where: { id: decoded.userId },
     });
 
     if (!user) {
@@ -28,7 +35,7 @@ export const authenticateToken = async (req, res, next) => {
       id: user.id,
       email: user.email,
       name: user.name,
-      role: user.role
+      role: user.role,
     };
 
     next();
@@ -46,7 +53,7 @@ export const requireRole = (allowedRoles) => {
 
     if (!allowedRoles.includes(req.user.role)) {
       return res.status(403).json({
-        message: `Forbidden: This action requires one of roles: [${allowedRoles.join(", ")}]`
+        message: `Forbidden: This action requires one of roles: [${allowedRoles.join(", ")}]`,
       });
     }
 

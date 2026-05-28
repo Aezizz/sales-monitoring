@@ -1,11 +1,16 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+
+// fallback: if env belum diset, asumsi API terproxy di path yang sama
+if (!API_BASE_URL) {
+  console.warn("⚠️ VITE_API_BASE_URL is not set; using relative path /api");
+}
 
 export async function apiRequest(path, options = {}) {
   const token = localStorage.getItem("token");
-  
+
   const headers = {
     "Content-Type": "application/json",
-    ...options.headers
+    ...options.headers,
   };
 
   if (token) {
@@ -14,7 +19,7 @@ export async function apiRequest(path, options = {}) {
 
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
-    headers
+    headers,
   });
 
   if (!response.ok) {
@@ -30,9 +35,12 @@ export async function apiRequest(path, options = {}) {
 
   // Handle downloadable files or empty JSON responses
   const contentType = response.headers.get("content-type");
-  if (contentType && (contentType.includes("application/pdf") || 
-                       contentType.includes("text/csv") || 
-                       contentType.includes("spreadsheetml"))) {
+  if (
+    contentType &&
+    (contentType.includes("application/pdf") ||
+      contentType.includes("text/csv") ||
+      contentType.includes("spreadsheetml"))
+  ) {
     return response.blob();
   }
 

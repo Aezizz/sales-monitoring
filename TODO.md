@@ -1,6 +1,11 @@
-- [ ] Verify persistence: DB used by Prisma matches expected PostgreSQL
-- [ ] Ensure import writes to DB immediately (createMany correctness)
-- [ ] Fix dashboard date filters for trends/top-products/platform-comparison (end-exclusive)
-- [ ] Fix GMV / total orders / items sold aggregation to only count completed orders consistently
-- [ ] Fix completed-order filtering inside trends, top-products, platform-comparison
-- [ ] Run import + verify KPI cards and charts return non-zero values
+# TODO
+
+## Fix login tidak terbaca di Railway/Vercel
+
+- [ ] Konfirmasi implementasi JWT Secret: hapus fallback secret yang bisa beda environment (wajib pakai JWT_SECRET)
+- [ ] Tambah logging aman (tanpa reveal secret) untuk membandingkan secret availability saat sign/verify
+- [ ] Pastikan frontend memakai base URL API yang benar dengan set `VITE_API_BASE_URL` di Vercel
+- [ ] Pastikan CORS `CLIENT_URL` di Railway sesuai domain frontend
+- [ ] Deploy ulang backend dan frontend, lalu test flow:
+  - login → token tersimpan
+  - load halaman protected → `/api/auth/me` sukses

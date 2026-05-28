@@ -36,7 +36,14 @@ export const login = async (req, res) => {
     }
 
     // Generate token
-    const secret = process.env.JWT_SECRET || "fallback_secret_key_12345";
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error("❌ JWT_SECRET is not set on server");
+      return res
+        .status(500)
+        .json({ message: "Server misconfigured (JWT_SECRET missing)" });
+    }
+
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
       secret,
@@ -86,7 +93,14 @@ export const register = async (req, res) => {
     });
 
     // Generate token
-    const secret = process.env.JWT_SECRET || "fallback_secret_key_12345";
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error("❌ JWT_SECRET is not set on server");
+      return res
+        .status(500)
+        .json({ message: "Server misconfigured (JWT_SECRET missing)" });
+    }
+
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
       secret,

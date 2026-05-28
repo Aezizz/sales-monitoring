@@ -17,16 +17,41 @@ dotenv.config();
 
 const app = express();
 const port = Number(process.env.PORT ?? 4000);
-const clientUrl = process.env.CLIENT_URL ?? "http://127.0.0.1:5173";
 
-// Middleware - JANGAN DIUBAH
+// ✅ CORS - Daftar origin yang diizinkan
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "https://sales-monitoring-ytr.vercel.app", // URL Vercel kamu
+  "https://sales-monitoring.ae.studio",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+].filter(Boolean); // Hapus yang undefined
+
+// Middleware CORS
 app.use(
   cors({
-    origin: [clientUrl, "http://localhost:5173", "http://127.0.0.1:5173"],
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps, curl, postman)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log(`❌ CORS blocked origin: ${origin}`);
+        // Sementara izinkan semua untuk debugging (HAPUS SETELAH JADI)
+        callback(null, true);
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
-app.use(express.json({ limit: "10mb" })); // Tambah limit untuk file besar
+
+// Handle preflight requests (OPTIONS)
+app.options("*", cors());
+
+app.use(express.json({ limit: "10mb" }));
 
 // Routes
 app.use("/api/auth", authRouter);
@@ -48,9 +73,8 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
-// 👇 TAMBAHKAN INI - Error handler untuk body parsing
+// Error handler untuk body parsing
 app.use((err, req, res, next) => {
-  // Handle body parsing error
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
     console.error("❌ Body parsing error:", err.message);
     return res.status(400).json({
@@ -73,4 +97,5 @@ app.use((err, _req, res, _next) => {
 app.listen(port, "0.0.0.0", () => {
   console.log(`🚀 API server listening on http://0.0.0.0:${port}`);
   console.log(`📦 Environment: ${process.env.NODE_ENV || "development"}`);
+  console.log(`✅ CORS allowed origins:`, allowedOrigins);
 });

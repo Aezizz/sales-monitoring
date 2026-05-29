@@ -51,7 +51,8 @@ app.use(
 );
 
 // Handle preflight requests (OPTIONS)
-app.options("*", cors());
+// Express 5 + path-to-regexp: hindari pattern wildcard yang bisa memicu PathError.
+// Cukup biarkan middleware cors() menangani preflight.
 
 app.use(express.json({ limit: "10mb" }));
 

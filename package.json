@@ -11,7 +11,9 @@
     "preview": "vite preview --host 127.0.0.1",
     "lint": "eslint .",
     "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev"
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy --schema=./schema.prisma",
+    "prisma:seed": "prisma db seed --schema=./schema.prisma"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",

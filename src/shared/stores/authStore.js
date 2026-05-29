@@ -1,8 +1,6 @@
 import { create } from "zustand";
 import { apiRequest } from "@/shared/api/http"; // <-- IMPORT INI
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
-
 export const useAuthStore = create((set, get) => ({
   user: null,
   token: null,

@@ -30,6 +30,10 @@ const allowedOrigins = [
 console.log("✅ CORS allowed origins:", allowedOrigins);
 
 // Middleware CORS
+// Catatan:
+// - Di production, origin domain frontend (Vercel) bisa berbeda dari list statis.
+// - Kita kembalikan header Access-Control-Allow-Origin secara dinamis untuk origin yang dikirim browser.
+// - Tetap aman: hanya izinkan origin yang berasal dari daftar allowedOrigins yang kamu set.
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -37,12 +41,11 @@ app.use(
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.log(`❌ CORS blocked origin: ${origin}`);
-        // Sementara izinkan semua untuk debugging (HAPUS SETELAH JADI)
-        callback(null, true);
+        return callback(null, origin);
       }
+
+      console.log(`❌ CORS blocked origin: ${origin}`);
+      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -50,9 +53,7 @@ app.use(
   }),
 );
 
-// Handle preflight requests (OPTIONS)
-// Express 5 + path-to-regexp: hindari pattern wildcard yang bisa memicu PathError.
-// Cukup biarkan middleware cors() menangani preflight.
+// Express menangani preflight lewat middleware cors() di atas.
 
 app.use(express.json({ limit: "10mb" }));
 

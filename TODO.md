@@ -1,11 +1,15 @@
 # TODO
 
-## Fix login tidak terbaca di Railway/Vercel
+## Prisma & Railway build/start order
 
-- [ ] Konfirmasi implementasi JWT Secret: hapus fallback secret yang bisa beda environment (wajib pakai JWT_SECRET)
-- [ ] Tambah logging aman (tanpa reveal secret) untuk membandingkan secret availability saat sign/verify
-- [ ] Pastikan frontend memakai base URL API yang benar dengan set `VITE_API_BASE_URL` di Vercel
-- [ ] Pastikan CORS `CLIENT_URL` di Railway sesuai domain frontend
-- [ ] Deploy ulang backend dan frontend, lalu test flow:
-  - login → token tersimpan
-  - load halaman protected → `/api/auth/me` sukses
+- [x] Ubah `package.json`:
+  - [x] Tambahkan script `prisma:prepare` = generate + migrate deploy + db seed (schema konsisten: `./prisma/schema.prisma`)
+  - [x] Tambahkan script `start:prod` yang menjalankan `prisma:prepare` lalu start server
+  - [x] Pastikan seed pakai `node prisma/seed.js` (bukan `prisma db seed`)
+- [x] Rapikan konsistensi path schema di seluruh script Prisma
+- [x] Update Railway:
+  - [x] Set Build Command: `npm install`
+  - [x] Set Start Command: `npm run start:prod`
+- [ ] Verifikasi produksi:
+  - [ ] Pastikan log Prisma connect ke `DATABASE_URL` (bukan `localhost:5432`)
+  - [ ] Pastikan admin/staff/owner seed muncul

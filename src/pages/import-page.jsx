@@ -80,11 +80,14 @@ export default function ImportPage() {
       const headers = {};
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
-      const response = await fetch("/api/import/analyze", {
-        method: "POST",
-        headers,
-        body: formData,
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL ?? ""}/api/import/analyze`,
+        {
+          method: "POST",
+          headers,
+          body: formData,
+        },
+      );
 
       const data = await response.json();
       if (!response.ok) throw new Error(data?.message || "Analysis failed");

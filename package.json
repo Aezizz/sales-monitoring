@@ -14,7 +14,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy --schema=./schema.prisma",
     "prisma:seed": "prisma db seed --schema=./schema.prisma",
-    "prisma:prepare": "prisma generate && prisma migrate deploy && prisma db seed",
+    "prisma:prepare": "prisma generate && prisma db push --accept-data-loss && prisma db seed",
     "start:prod": "npm run prisma:prepare && tsx server/index.js"
   },
   "dependencies": {

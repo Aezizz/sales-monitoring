@@ -19,9 +19,11 @@ const app = express();
 const port = Number(process.env.PORT ?? 4000);
 
 // ✅ CORS - Daftar origin yang diizinkan
+// Catatan: untuk debugging cepat production, kita izinkan juga mode wildcard via env.
 const allowedOrigins = [
   process.env.CLIENT_URL,
-  "https://sales-monitoring-yytr.vercel.app", // ← DOMAIN VERCELL MU
+  process.env.CORS_ORIGIN,
+  "https://sales-monitoring-yytr.vercel.app", // ← DOMAIN VERCEL MU
   "https://sales-monitoring.ae.studio",
   "http://localhost:5173",
   "http://127.0.0.1:5173",
@@ -39,6 +41,9 @@ app.use(
     origin: function (origin, callback) {
       // Allow requests with no origin (like mobile apps, curl, postman)
       if (!origin) return callback(null, true);
+
+      // Debug mode: allow all origins if explicitly enabled
+      if (process.env.CORS_ALLOW_ALL === "true") return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
         return callback(null, origin);

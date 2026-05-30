@@ -45,27 +45,7 @@ export default function ImportPage() {
   });
 
   // Mutations
-  const analyzeMutation = useMutation({
-    mutationFn: (formData) =>
-      apiRequest("/import/analyze", {
-        method: "POST",
-        body: formData,
-        headers: {
-          // Remove default JSON Content-Type, fetch will auto-assign multipart boundary
-          "Content-Type": undefined,
-        },
-      }),
-    onSuccess: (data) => {
-      setAnalysis(data);
-      setMapping(data.detectedMapping);
-      setUploadStep("mapping");
-      setErrorMsg("");
-    },
-    onError: (err) => {
-      setErrorMsg(err.message || "Failed to analyze file");
-      setUploadStep("select");
-    },
-  });
+  // (analyzeMutation di-left untuk versi sebelumnya; saat ini analisis dipanggil via runAnalyzeFile + apiRequest)
 
   // Custom upload mutation that works with fetch FormData
   const runAnalyzeFile = async (selectedFile) => {
@@ -80,20 +60,18 @@ export default function ImportPage() {
       const headers = {};
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL ?? ""}/api/import/analyze`,
-        {
-          method: "POST",
-          headers,
-          body: formData,
+      const response = await apiRequest("/import/analyze", {
+        method: "POST",
+        body: formData,
+        headers: {
+          // fetch auto-set multipart boundary
+          "Content-Type": undefined,
+          ...headers,
         },
-      );
+      });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data?.message || "Analysis failed");
-
-      setAnalysis(data);
-      setMapping(data.detectedMapping);
+      setAnalysis(response);
+      setMapping(response.detectedMapping);
       setUploadStep("mapping");
     } catch (err) {
       setErrorMsg(err.message);
